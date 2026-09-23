@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learning Quest — Class 8</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --board:#1E4A3D;
+    --chalk:#F5F1E6;
+    --paper:#FFF9EF;
+    --ink:#2B2118;
+    --math:#3D6FD1; --math-dark:#2C55A8;
+    --science:#E8623D; --science-dark:#C74B29;
+    --english:#9B59B6; --english-dark:#7C3F97;
+    --history:#A9552E; --history-dark:#7C3D20;
+    --good:#3FA66B; --bad:#E15A5A; --gold:#F2B705;
+    --accent:var(--gold);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Nunito',sans-serif;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(255,255,255,0.06) 0, transparent 38%),
+      radial-gradient(circle at 88% 92%, rgba(255,255,255,0.05) 0, transparent 42%),
+      var(--board);
+    color:var(--chalk);
+    min-height:100vh;
+    display:flex; align-items:flex-start; justify-content:center;
+    padding:20px 14px 60px;
+    overflow-x:hidden;
+  }
+  .app{width:100%;max-width:560px;position:relative;}
+  h1,h2,h3{font-family:'Baloo 2',cursive;margin:0;}
+  p{margin:0;}
+  button{font-family:inherit;}
+
+  /* ---------- Top bar: brand + nav + accessibility ---------- */
+  .topbar{margin-bottom:18px;}
+  .brand-row{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;}
+  .brand-row h1{font-size:1.6rem;}
+  .mainnav{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:10px;}
+  .mainnav button{
+    background:rgba(255,255,255,0.08);border:none;color:var(--chalk);
+    padding:8px 14px;border-radius:999px;font-weight:700;font-size:0.82rem;cursor:pointer;
+  }
+  .mainnav button.active{background:var(--gold);color:#3A2B00;}
+  .a11y-bar{display:flex;gap:6px;justify-content:center;align-items:center;flex-wrap:wrap;}
+  .a11y-bar button{
+    background:rgba(255,255,255,0.1);border:none;color:var(--chalk);
+    padding:6px 11px;border-radius:10px;font-weight:700;font-size:0.75rem;cursor:pointer;
+  }
+
+  /* ---------- Pop / hover feedback ---------- */
+  .subject-card,.option-btn,.btn-primary,.btn-secondary,.next-btn,.back-btn,.mainnav button,.a11y-bar button,.pill-btn,.topic-note .practice-btn{
+    transition:transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .18s ease, border-color .15s ease, background .15s ease;
+  }
+  @media (hover:hover) and (pointer:fine){
+    .subject-card:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 9px 0 rgba(0,0,0,0.18);}
+    .option-btn:hover:not(:disabled){transform:translateY(-2px) scale(1.025);border-color:var(--accent);}
+    .btn-primary:hover,.next-btn:hover,.topic-note .practice-btn:hover{transform:translateY(-2px) scale(1.03);}
+    .btn-secondary:hover{transform:translateY(-2px) scale(1.03);background:rgba(255,255,255,0.18);}
+    .back-btn:hover,.mainnav button:hover,.a11y-bar button:hover,.pill-btn:hover{transform:scale(1.06);}
+  }
+  .subject-card:active{transform:translateY(4px) scale(0.99);box-shadow:0 2px 0 rgba(0,0,0,0.18);}
+  .option-btn:active:not(:disabled){transform:scale(0.96);}
+  .btn-primary:active,.btn-secondary:active,.next-btn:active{transform:translateY(2px) scale(0.97);}
+
+  /* ---------- Pages ---------- */
+  .page{display:none;}
+  .page.active{display:block;animation:fadeIn .3s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ---------- Home ---------- */
+  .hero{text-align:center;padding:14px 4px 6px;position:relative;}
+  .doodle{position:absolute;opacity:0.2;stroke:var(--chalk);}
+  .doodle.d1{top:-4px;left:2px;width:32px;}
+  .doodle.d2{top:0;right:4px;width:28px;}
+  .hero p.tag{margin:6px 0 0;color:#C9D6CD;font-size:0.95rem;}
+  .chalk-underline{width:70px;height:4px;background:var(--gold);border-radius:4px;margin:12px auto 18px;opacity:0.85;}
+  .hero-cta{
+    display:block;width:100%;max-width:280px;margin:0 auto 22px;padding:15px;border:none;border-radius:16px;
+    background:var(--gold);color:#3A2B00;font-family:'Baloo 2';font-weight:700;font-size:1.05rem;cursor:pointer;
+  }
+  .stat-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:8px;}
+  .stat-chip{background:rgba(255,255,255,0.08);border-radius:14px;padding:10px 14px;text-align:center;min-width:84px;}
+  .stat-chip .num{font-family:'Baloo 2';font-size:1.3rem;color:var(--gold);}
+  .stat-chip .lbl{font-size:0.68rem;color:#C9D6CD;}
+  .home-blurb{background:rgba(255,255,255,0.06);border-radius:16px;padding:16px;font-size:0.88rem;line-height:1.55;color:#DDE6DF;margin-top:6px;}
+
+  /* ---------- Subject select (Play) ---------- */
+  .subject-grid{display:flex;flex-direction:column;gap:16px;}
+  .subject-card{
+    border:none;border-radius:20px;padding:20px 22px;text-align:left;cursor:pointer;
+    display:flex;align-items:center;gap:16px;color:var(--paper);font-family:inherit;
+    box-shadow:0 6px 0 rgba(0,0,0,0.18);position:relative;overflow:hidden;
+  }
+  .subject-card::after{content:"";position:absolute;right:-30px;top:-30px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.08);}
+  .subject-card.math{background:linear-gradient(135deg,var(--math),var(--math-dark));}
+  .subject-card.science{background:linear-gradient(135deg,var(--science),var(--science-dark));}
+  .subject-card.english{background:linear-gradient(135deg,var(--english),var(--english-dark));}
+  .subject-card.history{background:linear-gradient(135deg,var(--history),var(--history-dark));}
+  .subject-icon{width:52px;height:52px;flex:0 0 52px;}
+  .subject-text h3{font-size:1.25rem;color:#fff;}
+  .subject-text p{margin:3px 0 0;font-size:0.85rem;color:rgba(255,255,255,0.85);}
+  .subject-meta{margin-left:auto;font-size:0.72rem;background:rgba(255,255,255,0.22);padding:5px 10px;border-radius:12px;white-space:nowrap;text-align:center;line-height:1.35;}
+
+  /* ---------- Play sub-screens (select / quiz / results) ---------- */
+  .screen{display:none;}
+  .screen.active{display:block;animation:fadeIn .3s ease;}
+
+  /* ---------- Quiz + Results themed panel ---------- */
+  #screen-quiz, #screen-results{
+    border-radius:26px;padding:16px 14px 4px;background-color:rgba(255,255,255,0.02);
+    background-repeat:no-repeat, repeat;background-size:auto, 130px 130px;transition:background .3s;
+  }
+  .app.theme-math #screen-quiz, .app.theme-math #screen-results{
+    background-image:linear-gradient(180deg, rgba(61,111,209,0.16), rgba(61,111,209,0.02)),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Ctext x='8' y='34' font-size='26' fill='white' opacity='0.09' font-family='Arial'%3E+%3C/text%3E%3Ctext x='66' y='96' font-size='30' fill='white' opacity='0.09' font-family='Arial'%3E%C3%97%3C/text%3E%3Ccircle cx='96' cy='24' r='10' stroke='white' stroke-opacity='0.09' fill='none'/%3E%3Cpolygon points='18,102 33,76 48,102' stroke='white' stroke-opacity='0.09' fill='none'/%3E%3C/svg%3E");
+  }
+  .app.theme-science #screen-quiz, .app.theme-science #screen-results{
+    background-image:linear-gradient(180deg, rgba(232,98,61,0.16), rgba(232,98,61,0.02)),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='130' height='130'%3E%3Ccircle cx='30' cy='30' r='4' fill='white' opacity='0.1'/%3E%3Cellipse cx='30' cy='30' rx='22' ry='9' stroke='white' stroke-opacity='0.1' fill='none'/%3E%3Cellipse cx='30' cy='30' rx='22' ry='9' stroke='white' stroke-opacity='0.1' fill='none' transform='rotate(60 30 30)'/%3E%3Cpath d='M92 92h14l4 8v18a6 6 0 0 1-6 6h-10a6 6 0 0 1-6-6v-18z' stroke='white' stroke-opacity='0.1' fill='none'/%3E%3C/svg%3E");
+  }
+  .app.theme-english #screen-quiz, .app.theme-english #screen-results{
+    background-image:linear-gradient(180deg, rgba(155,89,182,0.16), rgba(155,89,182,0.02)),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Ctext x='10' y='38' font-size='30' fill='white' opacity='0.09' font-family='Georgia'%3EA%3C/text%3E%3Ctext x='68' y='98' font-size='28' fill='white' opacity='0.09' font-family='Georgia'%3Eb%3C/text%3E%3Cpath d='M28 78q0-10 10-10t10 10-10 10-10-10z' stroke='white' stroke-opacity='0.08' fill='none'/%3E%3C/svg%3E");
+  }
+  .app.theme-history #screen-quiz, .app.theme-history #screen-results{
+    background-image:linear-gradient(180deg, rgba(169,85,46,0.18), rgba(169,85,46,0.03)),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='130' height='130'%3E%3Crect x='14' y='20' width='50' height='34' rx='6' fill='none' stroke='white' stroke-opacity='0.1'/%3E%3Cline x1='22' y1='30' x2='56' y2='30' stroke='white' stroke-opacity='0.09'/%3E%3Cline x1='22' y1='38' x2='56' y2='38' stroke='white' stroke-opacity='0.09'/%3E%3Cline x1='22' y1='46' x2='44' y2='46' stroke='white' stroke-opacity='0.09'/%3E%3Cpath d='M90 84c10-14 26-14 30 0-8-4-18-2-22 8-4-8-14-10-22-6 4-6 10-4 14-2z' fill='none' stroke='white' stroke-opacity='0.1'/%3E%3C/svg%3E");
+  }
+
+  .quiz-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:6px;}
+  .back-btn{background:none;border:none;color:var(--chalk);font-weight:700;font-size:0.85rem;cursor:pointer;opacity:0.8;padding:6px 0;}
+  .score-pill{background:rgba(255,255,255,0.1);border-radius:999px;padding:5px 12px;font-weight:700;font-size:0.85rem;color:var(--accent);}
+  .read-aloud-btn{background:rgba(255,255,255,0.1);border:none;color:var(--chalk);border-radius:999px;padding:5px 12px;font-weight:700;font-size:0.8rem;cursor:pointer;}
+  .progress-dots{display:flex;gap:6px;justify-content:center;margin-bottom:16px;flex-wrap:wrap;}
+  .dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,0.25);transition:background .2s, transform .2s;}
+  .dot.done-correct{background:var(--good);}
+  .dot.done-wrong{background:var(--bad);}
+  .dot.current{background:var(--accent);transform:scale(1.35);}
+
+  .mascot-wrap{display:flex;justify-content:center;margin-bottom:2px;}
+  #mascot{width:132px;height:150px;overflow:visible;}
+  .topic-tag{text-align:center;font-size:0.75rem;letter-spacing:0.3px;color:var(--accent);font-weight:700;margin-bottom:6px;}
+
+  .question-card{
+    background:var(--paper);color:var(--ink);border-radius:22px;padding:22px 20px 18px;
+    box-shadow:0 10px 0 rgba(0,0,0,0.15);margin-bottom:18px;border-top:6px solid var(--accent);
+  }
+  .question-card h2{font-size:1.2rem;line-height:1.4;color:var(--ink);}
+
+  .options{display:flex;flex-direction:column;gap:11px;}
+  .option-btn{
+    font-weight:700;font-size:0.98rem;text-align:left;padding:13px 16px;border-radius:14px;
+    border:2px solid #E4DAC4;background:#fff;color:var(--ink);cursor:pointer;
+  }
+  .option-btn:disabled{cursor:default;}
+  .option-btn.correct{background:#E9F8EE;border-color:var(--good);color:#256B44;}
+  .option-btn.wrong{background:#FDEBEB;border-color:var(--bad);color:#A63A3A;}
+  .option-btn.dim{opacity:0.5;}
+
+  .feedback{margin-top:16px;padding:14px 16px;border-radius:14px;font-size:0.9rem;line-height:1.45;display:none;}
+  .feedback.show{display:block;animation:fadeIn .25s ease;}
+  .feedback.good{background:rgba(63,166,107,0.16);color:#DFF4E7;}
+  .feedback.bad{background:rgba(225,90,90,0.16);color:#FBE0E0;}
+  .feedback b{display:block;margin-bottom:3px;font-family:'Baloo 2';font-size:1rem;}
+
+  .next-btn{width:100%;margin-top:16px;margin-bottom:16px;padding:14px;border:none;border-radius:14px;background:var(--accent);color:#3A2B00;font-family:'Baloo 2';font-weight:700;font-size:1.05rem;cursor:pointer;display:none;}
+  .next-btn.show{display:block;}
+
+  /* ---------- Results ---------- */
+  .results{text-align:center;position:relative;padding-bottom:14px;}
+  .results h2{font-size:1.6rem;margin-bottom:4px;}
+  .score-big{font-family:'Baloo 2';font-size:2.6rem;color:var(--accent);margin:6px 0 2px;}
+  .results p.msg{color:#D6E2D9;font-size:0.95rem;max-width:360px;margin:6px auto 22px;}
+  .results-actions{display:flex;flex-direction:column;gap:12px;}
+  .btn-primary, .btn-secondary{padding:14px;border-radius:14px;border:none;font-family:'Baloo 2';font-weight:700;font-size:1rem;cursor:pointer;}
+  .btn-primary{background:var(--accent);color:#3A2B00;}
+  .btn-secondary{background:rgba(255,255,255,0.12);color:var(--chalk);}
+  .confetti-piece{position:absolute;top:-12px;width:8px;height:14px;border-radius:2px;opacity:0.95;pointer-events:none;animation:confettiFall 1.7s ease-in forwards;}
+  @keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1;}100%{transform:translateY(340px) rotate(340deg);opacity:0;}}
+
+  /* ---------- Learn page ---------- */
+  .pill-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:18px;}
+  .pill-btn{border:none;border-radius:999px;padding:9px 16px;font-weight:700;font-size:0.85rem;cursor:pointer;color:#fff;opacity:0.55;}
+  .pill-btn.active{opacity:1;box-shadow:0 4px 0 rgba(0,0,0,0.18);}
+  .pill-btn.math{background:var(--math);} .pill-btn.science{background:var(--science);}
+  .pill-btn.english{background:var(--english);} .pill-btn.history{background:var(--history);}
+  .topic-note{background:var(--paper);color:var(--ink);border-radius:18px;padding:16px 18px;margin-bottom:12px;box-shadow:0 6px 0 rgba(0,0,0,0.12);}
+  .topic-note h3{font-size:1.02rem;margin-bottom:6px;}
+  .topic-note p{font-size:0.88rem;line-height:1.5;color:#4B4030;margin-bottom:10px;}
+  .topic-note .practice-btn{border:none;border-radius:10px;padding:8px 14px;font-weight:700;font-size:0.8rem;cursor:pointer;color:#fff;}
+  .section-intro{text-align:center;font-size:0.88rem;color:#C9D6CD;margin-bottom:16px;}
+
+  /* ---------- Reports page ---------- */
+  .report-cards{display:flex;flex-direction:column;gap:12px;margin-bottom:18px;}
+  .report-card{background:var(--paper);color:var(--ink);border-radius:16px;padding:14px 16px;box-shadow:0 5px 0 rgba(0,0,0,0.12);}
+  .report-card .rc-top{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+  .report-card .rc-dot{width:11px;height:11px;border-radius:50%;}
+  .report-card h4{font-size:1rem;text-transform:capitalize;}
+  .report-card .rc-stats{display:flex;gap:14px;font-size:0.78rem;color:#5B5346;flex-wrap:wrap;}
+  .report-card .rc-stats b{color:var(--ink);}
+  .report-card .rc-trend{margin-top:6px;font-size:0.8rem;color:#3D6FD1;font-weight:700;}
+  .overall-stats{display:flex;gap:10px;justify-content:center;margin-bottom:18px;flex-wrap:wrap;}
+  .history-list{display:flex;flex-direction:column;gap:9px;margin-bottom:16px;}
+  .history-item{background:var(--paper);border-radius:14px;padding:11px 14px;color:var(--ink);display:flex;align-items:center;gap:12px;box-shadow:0 4px 0 rgba(0,0,0,0.1);}
+  .history-dot{width:11px;height:11px;border-radius:50%;flex:0 0 11px;}
+  .history-dot.math{background:var(--math);} .history-dot.science{background:var(--science);}
+  .history-dot.english{background:var(--english);} .history-dot.history{background:var(--history);}
+  .history-main{flex:1;}
+  .history-main .h-subject{font-weight:800;font-family:'Baloo 2';font-size:0.95rem;text-transform:capitalize;}
+  .history-main .h-date{font-size:0.72rem;color:#8A7F6B;}
+  .history-score{font-family:'Baloo 2';font-weight:700;font-size:1rem;}
+  .history-empty{text-align:center;color:#C9D6CD;font-size:0.9rem;padding:30px 10px;}
+  .report-actions{display:flex;flex-direction:column;gap:10px;}
+  .report-actions button{padding:13px;border:none;border-radius:14px;font-family:'Baloo 2';font-weight:700;font-size:0.92rem;cursor:pointer;}
+  #exportBtn{background:var(--gold);color:#3A2B00;}
+  #clearReportsBtn{background:rgba(225,90,90,0.18);color:#FBE0E0;}
+
+  /* ---------- About page ---------- */
+  .about-block{background:rgba(255,255,255,0.06);border-radius:16px;padding:16px 18px;margin-bottom:14px;font-size:0.88rem;line-height:1.55;color:#DDE6DF;}
+  .about-block h3{color:var(--gold);font-size:1.05rem;margin-bottom:8px;}
+  .about-block ol,.about-block ul{margin:0;padding-left:20px;}
+  .about-block li{margin-bottom:6px;}
+  .print-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+  .print-row button{border:none;border-radius:10px;padding:8px 13px;font-weight:700;font-size:0.78rem;cursor:pointer;color:#fff;}
+
+  #printWorksheet{display:none;}
+
+  @media print{
+    body > *:not(#printWorksheet){display:none !important;}
+    #printWorksheet{display:block !important;position:static;color:#000;background:#fff;}
+  }
+
+  @media (prefers-reduced-motion: reduce){*{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}}
+</style>
+</head>
+<body>
+<div class="app" id="appRoot">
+
+  <div class="topbar">
+    <div class="brand-row"><h1>📘 Learning Quest</h1></div>
+    <nav class="mainnav" id="mainNav">
+      <button data-nav="home" class="active">Home</button>
+      <button data-nav="learn">Learn</button>
+      <button data-nav="play">Play</button>
+      <button data-nav="reports">Reports</button>
+      <button data-nav="about">About</button>
+    </nav>
+    <div class="a11y-bar">
+      <button id="fontDec">A−</button>
+      <button id="fontInc">A+</button>
+      <button id="langToggle">हिंदी</button>
+    </div>
+  </div>
+
+  <!-- ============ HOME ============ -->
+  <section class="page active" id="page-home">
+    <div class="hero">
+      <svg class="doodle d1" viewBox="0 0 40 40" fill="none"><path d="M20 4l3.5 10.8H35l-9.2 6.7L29.3 32 20 25.3 10.7 32l3.5-10.5L5 14.8h11.5z" stroke-width="1.6"/></svg>
+      <svg class="doodle d2" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="4" stroke-width="1.6"/><ellipse cx="20" cy="20" rx="16" ry="6" stroke-width="1.6"/><ellipse cx="20" cy="20" rx="16" ry="6" stroke-width="1.6" transform="rotate(60 20 20)"/></svg>
+      <h2 id="homeTitle" data-i18n="home_title">Class 8 Learning Quest</h2>
+      <p class="tag" id="homeTag" data-i18n="home_subtitle">Math · Science · English · History — made for your class</p>
+      <div class="chalk-underline"></div>
+    </div>
+    <div class="stat-row" id="homeStats"></div>
+    <button class="hero-cta" id="homeCta" data-i18n="home_cta">▶ Start Playing</button>
+    <div class="home-blurb">
+      This game was built from a real classroom survey of 42 Class 8 students: most found <b>Science and Math</b> hardest,
+      said they don't get enough <b>practice</b>, and said they'd enjoy learning through a <b>game or quiz</b>. Every question
+      here targets exactly those weak spots — Fractions, Algebra, Geometry and Percentage in Math; Chemistry, Physics and
+      Biology in Science — plus English and History rounds.
+    </div>
+  </section>
+
+  <!-- ============ LEARN ============ -->
+  <section class="page" id="page-learn">
+    <p class="section-intro">A short, simple explanation for each topic — read this before you play.</p>
+    <div class="pill-row" id="learnPills">
+      <button class="pill-btn math active" data-subj="math">Math</button>
+      <button class="pill-btn science" data-subj="science">Science</button>
+      <button class="pill-btn english" data-subj="english">English</button>
+      <button class="pill-btn history" data-subj="history">History</button>
+    </div>
+    <div id="learnNotesWrap"></div>
+  </section>
+
+  <!-- ============ PLAY ============ -->
+  <section class="page" id="page-play">
+    <div class="screen active" id="screen-select">
+      <div class="subject-grid">
+        <button class="subject-card math" data-subject="math">
+          <svg class="subject-icon" viewBox="0 0 52 52" fill="none"><circle cx="26" cy="26" r="24" fill="rgba(255,255,255,0.18)"/><text x="26" y="34" font-family="Baloo 2" font-size="24" fill="#fff" text-anchor="middle">π</text></svg>
+          <span class="subject-text"><h3>Math</h3><p>Fractions · Algebra · Geometry · Percentage</p></span>
+          <span class="subject-meta" id="badge-math">10 fresh<br>questions</span>
+        </button>
+        <button class="subject-card science" data-subject="science">
+          <svg class="subject-icon" viewBox="0 0 52 52" fill="none"><circle cx="26" cy="26" r="24" fill="rgba(255,255,255,0.18)"/><path d="M20 12h12M23 12v10l-8 14a4 4 0 0 0 3.5 6h15a4 4 0 0 0 3.5-6l-8-14V12" stroke="#fff" stroke-width="2.4" fill="none" stroke-linejoin="round"/></svg>
+          <span class="subject-text"><h3>Science</h3><p>Chemistry · Physics · Biology</p></span>
+          <span class="subject-meta" id="badge-science">10 fresh<br>questions</span>
+        </button>
+        <button class="subject-card english" data-subject="english">
+          <svg class="subject-icon" viewBox="0 0 52 52" fill="none"><circle cx="26" cy="26" r="24" fill="rgba(255,255,255,0.18)"/><text x="26" y="34" font-family="Baloo 2" font-size="22" fill="#fff" text-anchor="middle">Aa</text></svg>
+          <span class="subject-text"><h3>English</h3><p>Grammar · Vocabulary</p></span>
+          <span class="subject-meta" id="badge-english">10 fresh<br>questions</span>
+        </button>
+        <button class="subject-card history" data-subject="history">
+          <svg class="subject-icon" viewBox="0 0 52 52" fill="none"><circle cx="26" cy="26" r="24" fill="rgba(255,255,255,0.18)"/><path d="M14 22 L26 12 L38 22 M13 38 H39 M18 24 V36 M26 24 V36 M34 24 V36" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="subject-text"><h3>History</h3><p>Ancient India · Freedom Struggle · Constitution</p></span>
+          <span class="subject-meta" id="badge-history">10 fresh<br>questions</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="screen" id="screen-quiz">
+      <div class="quiz-topbar">
+        <button class="back-btn" id="backBtn">&larr; Subjects</button>
+        <button class="read-aloud-btn" id="readAloudBtn">🔊 Read aloud</button>
+        <span class="score-pill" id="scorePill">Score: 0</span>
+      </div>
+      <div class="progress-dots" id="progressDots"></div>
+      <div class="mascot-wrap">
+        <svg id="mascot" viewBox="0 0 140 170">
+          <g id="armL" transform="rotate(0 48 108)"><path d="M48 108 Q30 118 26 134" stroke="#2B2118" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="26" cy="134" r="6.5" fill="#FFF9EF" stroke="#2B2118" stroke-width="2.5"/></g>
+          <g id="armR" transform="rotate(0 92 108)"><path d="M92 108 Q110 118 114 134" stroke="#2B2118" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="114" cy="134" r="6.5" fill="#FFF9EF" stroke="#2B2118" stroke-width="2.5"/></g>
+          <path d="M56 150 L54 168" stroke="#2B2118" stroke-width="8" stroke-linecap="round"/>
+          <path d="M84 150 L86 168" stroke="#2B2118" stroke-width="8" stroke-linecap="round"/>
+          <rect x="42" y="100" width="56" height="52" rx="20" fill="#FFF9EF" stroke="#E4DAC4" stroke-width="3"/>
+          <path class="collar" d="M58 100 L70 116 L82 100" style="fill:var(--accent)" stroke="#2B2118" stroke-width="2"/>
+          <g id="headGroup" transform="rotate(0 70 54)">
+            <circle cx="70" cy="54" r="40" fill="#FFF9EF" stroke="#E4DAC4" stroke-width="3"/>
+            <circle id="eyeL" cx="56" cy="48" r="6" fill="#2B2118"/>
+            <circle id="eyeR" cx="84" cy="48" r="6" fill="#2B2118"/>
+            <path id="mouth" d="M50 68 Q70 84 90 68" stroke="#2B2118" stroke-width="5" fill="none" stroke-linecap="round"/>
+          </g>
+        </svg>
+      </div>
+      <div class="topic-tag" id="topicTag">TOPIC</div>
+      <div class="question-card"><h2 id="questionText">Question text</h2></div>
+      <div class="options" id="optionsWrap"></div>
+      <div class="feedback" id="feedback"><b id="feedbackTitle"></b><span id="feedbackText"></span></div>
+      <button class="next-btn" id="nextBtn">Next</button>
+    </div>
+
+    <div class="screen" id="screen-results">
+      <div class="results" id="resultsPanel">
+        <div class="mascot-wrap">
+          <svg id="mascotResult" viewBox="0 0 140 170" width="132" height="150">
+            <g><path d="M48 108 Q28 100 22 84" stroke="#2B2118" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="22" cy="84" r="6.5" fill="#FFF9EF" stroke="#2B2118" stroke-width="2.5"/></g>
+            <g><path d="M92 108 Q112 100 118 84" stroke="#2B2118" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="118" cy="84" r="6.5" fill="#FFF9EF" stroke="#2B2118" stroke-width="2.5"/></g>
+            <path d="M56 150 L54 168" stroke="#2B2118" stroke-width="8" stroke-linecap="round"/>
+            <path d="M84 150 L86 168" stroke="#2B2118" stroke-width="8" stroke-linecap="round"/>
+            <rect x="42" y="100" width="56" height="52" rx="20" fill="#FFF9EF" stroke="#E4DAC4" stroke-width="3"/>
+            <path d="M58 100 L70 116 L82 100" style="fill:var(--accent)" stroke="#2B2118" stroke-width="2"/>
+            <circle cx="70" cy="54" r="40" fill="#FFF9EF" stroke="#E4DAC4" stroke-width="3"/>
+            <circle cx="56" cy="48" r="6" fill="#2B2118"/><circle cx="84" cy="48" r="6" fill="#2B2118"/>
+            <path id="resultMouth" d="M50 66 Q70 90 90 66" stroke="#2B2118" stroke-width="5" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h2 id="resultSubject">Great job!</h2>
+        <div class="score-big" id="resultScore">0/0</div>
+        <p class="msg" id="resultMsg">Message</p>
+        <div class="results-actions">
+          <button class="btn-primary" id="retryBtn">Play this subject again</button>
+          <button class="btn-secondary" id="chooseBtn">Choose another subject</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ REPORTS ============ -->
+  <section class="page" id="page-reports">
+    <div class="overall-stats" id="overallStats"></div>
+    <div class="report-cards" id="reportCards"></div>
+    <div class="history-list" id="historyList"></div>
+    <div class="report-actions">
+      <button id="exportBtn">⬇ Download report (.txt)</button>
+      <button id="clearReportsBtn">Clear all reports</button>
+    </div>
+  </section>
+
+  <!-- ============ ABOUT ============ -->
+  <section class="page" id="page-about">
+    <div class="about-block">
+      <h3>About this project</h3>
+      <p>Learning Quest is a Community Engagement Project (CEP) built for a government school's Class 8 students.
+      It was designed directly from a 70-student survey: Science and Math came out as the hardest subjects, "not enough
+      practice" was the top reason topics feel difficult, and most students said they'd enjoy learning through a game or
+      quiz — so that's exactly what this is.</p>
+    </div>
+    <div class="about-block">
+      <h3>Guide for teachers</h3>
+      <ol>
+        <li>Open this page's link on any phone, tablet or computer — no install needed.</li>
+        <li>Send students to the <b>Learn</b> tab first for a quick explanation of each topic.</li>
+        <li>Let them try the <b>Play</b> tab — each attempt draws 10 random questions, so replaying stays fresh.</li>
+        <li>Check the <b>Reports</b> tab together to see attempts, best scores, and improvement over time.</li>
+        <li>On days with no internet, use the printable worksheets below as a paper backup.</li>
+      </ol>
+    </div>
+    <div class="about-block">
+      <h3>Printable worksheet (offline backup)</h3>
+      <p>Prints all questions and answers for one subject on paper — useful when internet is patchy.</p>
+      <div class="print-row">
+        <button style="background:var(--math)" onclick="printWorksheet('math')">Math</button>
+        <button style="background:var(--science)" onclick="printWorksheet('science')">Science</button>
+        <button style="background:var(--english)" onclick="printWorksheet('english')">English</button>
+        <button style="background:var(--history)" onclick="printWorksheet('history')">History</button>
+      </div>
+    </div>
+    <div class="about-block">
+      <h3>Accessibility</h3>
+      <p>Use the <b>A−/A+</b> buttons at the top to change text size, and the language button to switch the menus
+      and buttons between English and Hindi. (Quiz questions themselves are currently in English only.)</p>
+    </div>
+  </section>
+
+  <div id="printWorksheet"></div>
+</div>
+
+<script>
+const QUESTIONS = {
+  math: [
+    {topic:"Fractions", q:"What is 3/4 + 1/4?", opts:["1","4/8","1/2","3/16"], correct:0, exp:"When denominators match, just add the numerators: 3 + 1 = 4, so 4/4 = 1."},
+    {topic:"Fractions", q:"Convert 0.75 into a fraction in simplest form.", opts:["7/5","3/8","75/10","3/4"], correct:3, exp:"0.75 = 75/100. Dividing top and bottom by 25 gives 3/4."},
+    {topic:"Fractions", q:"What is 1/2 × 1/3?", opts:["1/6","2/3","1/5","2/6"], correct:0, exp:"Multiply numerators and denominators separately: (1×1)/(2×3) = 1/6."},
+    {topic:"Fractions", q:"Which fraction is greater: 3/5 or 2/3?", opts:["3/5","2/3","They are equal","Cannot tell"], correct:1, exp:"Convert to a common denominator (15): 3/5 = 9/15 and 2/3 = 10/15, so 2/3 is bigger."},
+    {topic:"Algebra", q:"Solve for x: x + 5 = 12", opts:["x = 5","x = 6","x = 7","x = 17"], correct:2, exp:"Subtract 5 from both sides: x = 12 − 5 = 7."},
+    {topic:"Algebra", q:"Simplify: 3x + 2x", opts:["6x","5x","5x²","3x + 2"], correct:1, exp:"Add the coefficients of the like term x: 3 + 2 = 5, so the answer is 5x."},
+    {topic:"Algebra", q:"Solve for x: 2x − 4 = 10", opts:["x = 3","x = 5","x = 7","x = 10"], correct:2, exp:"Add 4 to both sides to get 2x = 14, then divide by 2: x = 7."},
+    {topic:"Algebra", q:"If y = 3x and x = 4, what is y?", opts:["7","9","12","34"], correct:2, exp:"Substitute x = 4 into y = 3x: y = 3 × 4 = 12."},
+    {topic:"Geometry", q:"The three angles of a triangle always add up to:", opts:["90°","180°","270°","360°"], correct:1, exp:"The angle sum property of a triangle states the three interior angles always total 180°."},
+    {topic:"Geometry", q:"What do we call a triangle with all three sides equal?", opts:["Scalene","Right-angled","Isosceles","Equilateral"], correct:3, exp:"An equilateral triangle has all three sides — and all three angles — equal."},
+    {topic:"Geometry", q:"The angles of a quadrilateral add up to:", opts:["180°","270°","360°","400°"], correct:2, exp:"Any four-sided shape's interior angles always sum to 360°."},
+    {topic:"Geometry", q:"A shape with 4 equal sides and 4 right angles is called a:", opts:["Rectangle","Rhombus","Square","Trapezium"], correct:2, exp:"A square has all four sides equal in length and all four angles equal to 90°."},
+    {topic:"Percentage", q:"What is 20% of 150?", opts:["15","20","30","40"], correct:2, exp:"20% of 150 = (20/100) × 150 = 30."},
+    {topic:"Percentage", q:"50 is what percent of 200?", opts:["20%","25%","40%","50%"], correct:1, exp:"(50/200) × 100 = 25%."},
+    {topic:"Ratio", q:"Simplify the ratio 12 : 16", opts:["4 : 3","2 : 3","6 : 8","3 : 4"], correct:3, exp:"Divide both terms by their common factor, 4: 12÷4 : 16÷4 = 3 : 4."},
+    {topic:"Ratio", q:"A class has boys and girls in the ratio 3:2. If there are 15 boys, how many girls are there?", opts:["8","10","12","20"], correct:1, exp:"Each 'part' of the ratio equals 15÷3 = 5. So girls = 2 × 5 = 10."}
+  ],
+  science: [
+    {topic:"Chemistry", q:"What is the chemical symbol for water?", opts:["HO2","H2O2","H2O","O2H"], correct:2, exp:"A water molecule has 2 hydrogen atoms and 1 oxygen atom, written H2O."},
+    {topic:"Chemistry", q:"Which gas do plants take in during photosynthesis?", opts:["Oxygen","Carbon dioxide","Nitrogen","Hydrogen"], correct:1, exp:"Plants absorb carbon dioxide from the air and use it, with sunlight, to make food."},
+    {topic:"Chemistry", q:"A substance that cannot be broken into simpler substances is called a/an:", opts:["Mixture","Compound","Solution","Element"], correct:3, exp:"An element is a pure substance made of only one type of atom — it can't be split further chemically."},
+    {topic:"Chemistry", q:"What is the pH value of pure water?", opts:["0","7","10","14"], correct:1, exp:"Pure water is neutral, sitting exactly in the middle of the pH scale at 7."},
+    {topic:"Chemistry", q:"Which of these is a mixture, not a pure substance?", opts:["Oxygen gas","Salt water","Iron","Distilled water"], correct:1, exp:"Salt water contains salt dissolved in water — two substances mixed together, not chemically combined."},
+    {topic:"Physics", q:"Which force pulls objects down toward the Earth?", opts:["Friction","Gravity","Tension","Magnetism"], correct:1, exp:"Gravity is the force of attraction that pulls every object toward the Earth's centre."},
+    {topic:"Physics", q:"Which of these is a good conductor of electricity?", opts:["Rubber","Wood","Copper","Plastic"], correct:2, exp:"Copper is a metal, and metals allow electric current to pass through them easily."},
+    {topic:"Physics", q:"When light bounces off a mirror, it is called:", opts:["Refraction","Diffraction","Absorption","Reflection"], correct:3, exp:"Reflection is the bouncing back of light when it hits a smooth, shiny surface like a mirror."},
+    {topic:"Physics", q:"Which instrument is used to measure temperature?", opts:["Barometer","Thermometer","Voltmeter","Ammeter"], correct:1, exp:"A thermometer measures how hot or cold something is."},
+    {topic:"Physics", q:"Which of these travels the fastest?", opts:["Sound","A car","Light","Wind"], correct:2, exp:"Light travels far faster than sound or anything mechanical — that's why we see lightning before we hear thunder."},
+    {topic:"Biology", q:"What is the basic unit of life?", opts:["Tissue","Organ","Atom","Cell"], correct:3, exp:"Every living thing is made up of cells — the smallest structural and functional unit of life."},
+    {topic:"Biology", q:"Which organ pumps blood around the human body?", opts:["Lungs","Liver","Heart","Kidney"], correct:2, exp:"The heart is a muscular organ that continuously pumps blood through blood vessels."},
+    {topic:"Biology", q:"Which part of a plant absorbs water from the soil?", opts:["Leaves","Roots","Stem","Flower"], correct:1, exp:"Roots grow into the soil and absorb water and minerals, which travel up through the stem."},
+    {topic:"Biology", q:"Which gas do humans breathe in for respiration?", opts:["Carbon dioxide","Nitrogen","Oxygen","Hydrogen"], correct:2, exp:"We breathe in oxygen, which our cells use to release energy from food."},
+    {topic:"Biology", q:"What is the green pigment in leaves called?", opts:["Haemoglobin","Chlorophyll","Cellulose","Melanin"], correct:1, exp:"Chlorophyll gives leaves their green colour and helps them absorb sunlight for photosynthesis."}
+  ],
+  english: [
+    {topic:"Grammar", q:"Choose the correct sentence.", opts:["She go to school","She going to school","She goes to school","She gone to school"], correct:2, exp:"With 'she' (third person singular) in present tense, the verb takes an -s: 'She goes to school.'"},
+    {topic:"Vocabulary", q:"What is the opposite of 'happy'?", opts:["Joyful","Excited","Glad","Sad"], correct:3, exp:"'Sad' means the opposite feeling of 'happy'."},
+    {topic:"Grammar", q:"Which of these words is a noun?", opts:["Run","Quickly","Table","Beautiful"], correct:2, exp:"A noun names a person, place, or thing — 'table' is a thing, so it's the noun here."},
+    {topic:"Grammar", q:"Fill in the blank: 'I ___ a book yesterday.'", opts:["read","reads","reading","will read"], correct:0, exp:"'Yesterday' signals past tense. The past tense of 'read' is spelled the same but pronounced 'red'."},
+    {topic:"Vocabulary", q:"Choose the correctly spelled word.", opts:["Recieve","Receve","Receive","Receeve"], correct:2, exp:"Remember the rule 'i before e except after c' — so it's spelled 'receive'."},
+    {topic:"Grammar", q:"What is the plural of 'child'?", opts:["Childs","Children","Childes","Childrens"], correct:1, exp:"'Child' has an irregular plural — it becomes 'children', not 'childs'."},
+    {topic:"Grammar", q:"Choose the correct sentence: 'He ___ to the market every day.'", opts:["go","goes","going","gone"], correct:1, exp:"With 'he' in present tense, the verb takes an -s: 'He goes to the market.'"},
+    {topic:"Vocabulary", q:"What is the opposite of 'big'?", opts:["Huge","Tall","Small","Wide"], correct:2, exp:"'Small' is the opposite of 'big' in size."},
+    {topic:"Grammar", q:"Which word is a verb in this list?", opts:["Jump","Fast","Chair","Green"], correct:0, exp:"A verb shows an action — 'jump' is the action word here."},
+    {topic:"Grammar", q:"Fill in the blank: 'They ___ playing football now.'", opts:["is","am","are","was"], correct:2, exp:"'They' is plural, so it takes 'are' in the present continuous tense."},
+    {topic:"Vocabulary", q:"Which word means the same as 'happy'?", opts:["Angry","Glad","Tired","Bored"], correct:1, exp:"'Glad' is a synonym — it means the same as 'happy'."},
+    {topic:"Grammar", q:"What is the correct plural of 'mouse' (the animal)?", opts:["Mouses","Mices","Mice","Mouse"], correct:2, exp:"'Mouse' has an irregular plural form: 'mice'."},
+    {topic:"Grammar", q:"Choose the correct article: 'I have ___ apple.'", opts:["a","an","the","no article needed"], correct:1, exp:"Use 'an' before words that start with a vowel sound, like 'apple'."},
+    {topic:"Vocabulary", q:"What is the opposite of 'difficult'?", opts:["Hard","Easy","Complex","Slow"], correct:1, exp:"'Easy' is the opposite of 'difficult'."},
+    {topic:"Grammar", q:"Which sentence is written in the past tense?", opts:["I eat rice","I am eating rice","I ate rice","I will eat rice"], correct:2, exp:"'Ate' is the past tense form of 'eat', showing the action already happened."}
+  ],
+  history: [
+    {topic:"Freedom Struggle", q:"Who is known as the 'Father of the Nation' in India?", opts:["Jawaharlal Nehru","Mahatma Gandhi","Subhas Chandra Bose","Sardar Patel"], correct:1, exp:"Mahatma Gandhi led India's freedom movement through non-violence and is honoured as the Father of the Nation."},
+    {topic:"Modern India", q:"In which year did India gain independence?", opts:["1942","1947","1950","1930"], correct:1, exp:"India became independent from British rule on 15 August 1947."},
+    {topic:"Modern India", q:"Who was the first Prime Minister of India?", opts:["Dr. Rajendra Prasad","Sardar Patel","Jawaharlal Nehru","Lal Bahadur Shastri"], correct:2, exp:"Jawaharlal Nehru became India's first Prime Minister after independence in 1947."},
+    {topic:"Freedom Struggle", q:"The Quit India Movement was launched in which year?", opts:["1930","1942","1919","1947"], correct:1, exp:"Mahatma Gandhi launched the Quit India Movement in August 1942, demanding an end to British rule."},
+    {topic:"National Symbols", q:"Who wrote India's national anthem, 'Jana Gana Mana'?", opts:["Rabindranath Tagore","Bankim Chandra Chatterjee","Sarojini Naidu","Subramania Bharati"], correct:0, exp:"Rabindranath Tagore composed 'Jana Gana Mana', which was adopted as India's national anthem."},
+    {topic:"Colonial India", q:"The Battle of Plassey, which began British political control in India, was fought in which year?", opts:["1600","1757","1857","1905"], correct:1, exp:"The Battle of Plassey (1757) marked the start of British East India Company rule over Bengal."},
+    {topic:"Ancient India", q:"Who founded the Mauryan Empire?", opts:["Ashoka","Chandragupta Maurya","Bindusara","Samudragupta"], correct:1, exp:"Chandragupta Maurya founded the Mauryan Empire around 322 BCE, one of ancient India's largest empires."},
+    {topic:"Ancient India", q:"The Indus Valley Civilization mainly developed along which river?", opts:["Ganga","Indus","Godavari","Brahmaputra"], correct:1, exp:"The Indus Valley Civilization grew along the banks of the Indus River, with cities like Harappa and Mohenjo-daro."},
+    {topic:"Modern India", q:"Who was the first President of India?", opts:["Dr. Rajendra Prasad","Dr. S. Radhakrishnan","Zakir Husain","Jawaharlal Nehru"], correct:0, exp:"Dr. Rajendra Prasad served as independent India's first President, from 1950 to 1962."},
+    {topic:"Colonial India", q:"The Revolt of 1857 broke out first in which city?", opts:["Delhi","Meerut","Lucknow","Kanpur"], correct:1, exp:"The Revolt of 1857 began among sepoys stationed in Meerut before spreading across northern India."},
+    {topic:"Freedom Struggle", q:"Who is known as the 'Iron Man of India' for uniting the princely states?", opts:["Bhagat Singh","Sardar Vallabhbhai Patel","Lal Bahadur Shastri","B. R. Ambedkar"], correct:1, exp:"Sardar Vallabhbhai Patel is called the Iron Man of India for integrating over 500 princely states into the Union."},
+    {topic:"Freedom Struggle", q:"The 1930 Dandi March, protesting the salt tax, was led by whom?", opts:["Subhas Chandra Bose","Bhagat Singh","Mahatma Gandhi","Jawaharlal Nehru"], correct:2, exp:"Mahatma Gandhi led the Dandi March (Salt March) in 1930 to defy the British salt tax through civil disobedience."},
+    {topic:"Ancient India", q:"Emperor Ashoka belonged to which dynasty?", opts:["Gupta","Maurya","Chola","Mughal"], correct:1, exp:"Ashoka was a ruler of the Maurya dynasty, known for spreading Buddhism after the Kalinga war."},
+    {topic:"Modern India", q:"On which date did the Indian Constitution come into effect?", opts:["15 August 1947","26 January 1950","2 October 1948","26 November 1949"], correct:1, exp:"The Constitution of India came into force on 26 January 1950, celebrated every year as Republic Day."},
+    {topic:"Medieval India", q:"Who founded the Mughal Empire in India?", opts:["Akbar","Babur","Humayun","Shah Jahan"], correct:1, exp:"Babur founded the Mughal Empire in 1526 after defeating Ibrahim Lodi at the First Battle of Panipat."}
+  ]
+};
+
+const LEARN_NOTES = {
+  math: [
+    {topic:"Fractions", topics:["Fractions"], text:"A fraction shows a part of a whole, written as numerator/denominator (like 3/4). To add or compare fractions, first make the denominators the same."},
+    {topic:"Algebra", topics:["Algebra"], text:"Algebra uses letters like x for unknown numbers. To solve for x, do the same operation to both sides of the equation until x is alone."},
+    {topic:"Geometry", topics:["Geometry"], text:"Geometry studies shapes and angles. A triangle's angles always add to 180°, and a quadrilateral's angles always add to 360°."},
+    {topic:"Percentage & Ratio", topics:["Percentage","Ratio"], text:"Percent means 'out of 100' — divide the percent by 100 and multiply by the number. A ratio compares two quantities and is simplified the same way as a fraction."}
+  ],
+  science: [
+    {topic:"Chemistry", topics:["Chemistry"], text:"Chemistry looks at what things are made of. Elements are pure substances (like oxygen); compounds are elements chemically joined (like water, H2O)."},
+    {topic:"Physics", topics:["Physics"], text:"Physics explains forces and energy — gravity pulling things down, light reflecting off mirrors, and heat, sound and electricity behaving in predictable ways."},
+    {topic:"Biology", topics:["Biology"], text:"Biology studies living things. The cell is the basic unit of life, and organs like the heart and roots each have a specific job in a living body."}
+  ],
+  english: [
+    {topic:"Grammar", topics:["Grammar"], text:"Grammar is the set of rules for building correct sentences — like matching verbs to the subject (he goes, they go) and using the right tense."},
+    {topic:"Vocabulary", topics:["Vocabulary"], text:"Vocabulary is your bank of words and meanings — knowing synonyms (similar meaning) and antonyms (opposite meaning) helps you express ideas precisely."}
+  ],
+  history: [
+    {topic:"Ancient India", topics:["Ancient India"], text:"Ancient India includes the Indus Valley Civilization along the Indus River, and later empires like the Mauryas under rulers such as Chandragupta and Ashoka."},
+    {topic:"Medieval India", topics:["Medieval India"], text:"Medieval India saw new empires rise, including the Mughal Empire, founded by Babur in 1526 after the First Battle of Panipat."},
+    {topic:"Colonial India", topics:["Colonial India"], text:"From the mid-1700s, the British East India Company gradually took control of India, starting with the Battle of Plassey in 1757."},
+    {topic:"Freedom Struggle & Modern India", topics:["Freedom Struggle","Modern India","National Symbols"], text:"Leaders like Mahatma Gandhi and Sardar Patel led India's fight for independence. India became free on 15 August 1947, and its Constitution took effect on 26 January 1950."}
+  ]
+};
+
+const PRAISE = ["Shabash! 🎉","Zabardast!","Correct — well done!","Nailed it!","Super!"];
+const CONSOLE_MSGS = ["Not quite — koi baat nahi, read the tip below.","Close, but not this one. Here's why:","Almost there — here's the explanation:"];
+const QUESTIONS_PER_ROUND = 10;
+const HISTORY_KEY = 'learningQuestHistory';
+const LANG_KEY = 'learningQuestLang';
+const FONT_KEY = 'learningQuestFontScale';
+
+const I18N = {
+  en: {
+    home_title:"Class 8 Learning Quest", home_subtitle:"Math · Science · English · History — made for your class",
+    home_cta:"▶ Start Playing", nav_home:"Home", nav_learn:"Learn", nav_play:"Play", nav_reports:"Reports", nav_about:"About",
+    back_btn:"← Subjects", score_prefix:"Score: ", next_btn:"Next", see_results_btn:"See results",
+    play_again_btn:"Play this subject again", choose_another_btn:"Choose another subject",
+    read_aloud:"🔊 Read aloud", practice_btn:"Practice this topic", lang_toggle_label:"हिंदी"
+  },
+  hi: {
+    home_title:"कक्षा 8 लर्निंग क्वेस्ट", home_subtitle:"गणित · विज्ञान · अंग्रेज़ी · इतिहास — आपकी कक्षा के लिए",
+    home_cta:"▶ खेलना शुरू करें", nav_home:"होम", nav_learn:"सीखें", nav_play:"खेलें", nav_reports:"रिपोर्ट", nav_about:"जानकारी",
+    back_btn:"← विषय", score_prefix:"स्कोर: ", next_btn:"आगे", see_results_btn:"परिणाम देखें",
+    play_again_btn:"यह विषय फिर से खेलें", choose_another_btn:"दूसरा विषय चुनें",
+    read_aloud:"🔊 पढ़कर सुनाएं", practice_btn:"अभ्यास करें", lang_toggle_label:"English"
+  }
+};
+let currentLang = 'en';
+let fontScale = 1;
+
+function t(key){ return (I18N[currentLang] && I18N[currentLang][key]) || I18N.en[key] || key; }
+
+function applyLang(){
+  document.documentElement.lang = currentLang === 'hi' ? 'hi' : 'en';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent = t(el.getAttribute('data-i18n')); });
+  document.querySelector('[data-nav="home"]').textContent = t('nav_home');
+  document.querySelector('[data-nav="learn"]').textContent = t('nav_learn');
+  document.querySelector('[data-nav="play"]').textContent = t('nav_play');
+  document.querySelector('[data-nav="reports"]').textContent = t('nav_reports');
+  document.querySelector('[data-nav="about"]').textContent = t('nav_about');
+  document.getElementById('backBtn').innerHTML = t('back_btn');
+  document.getElementById('readAloudBtn').textContent = t('read_aloud');
+  document.getElementById('retryBtn').textContent = t('play_again_btn');
+  document.getElementById('chooseBtn').textContent = t('choose_another_btn');
+  document.getElementById('langToggle').textContent = t('lang_toggle_label');
+  document.getElementById('scorePill').textContent = t('score_prefix') + state.score;
+}
+function toggleLang(){
+  currentLang = currentLang === 'en' ? 'hi' : 'en';
+  try{ localStorage.setItem(LANG_KEY, currentLang); }catch(e){}
+  applyLang();
+  renderLearn();
+}
+function applyFontScale(){
+  document.documentElement.style.fontSize = (16*fontScale) + 'px';
+  try{ localStorage.setItem(FONT_KEY, fontScale); }catch(e){}
+}
+
+let state = { subject:null, order:[], index:0, score:0, answered:false, results:[] };
+
+const pages = {
+  home: document.getElementById('page-home'), learn: document.getElementById('page-learn'),
+  play: document.getElementById('page-play'), reports: document.getElementById('page-reports'),
+  about: document.getElementById('page-about')
+};
+const screens = { select: document.getElementById('screen-select'), quiz: document.getElementById('screen-quiz'), results: document.getElementById('screen-results') };
+
+function showPage(name){
+  Object.values(pages).forEach(p=>p.classList.remove('active'));
+  pages[name].classList.add('active');
+  document.querySelectorAll('#mainNav button').forEach(b=>b.classList.toggle('active', b.dataset.nav===name));
+  if(name==='reports') renderReports();
+  if(name==='home') renderHomeStats();
+}
+function showScreen(name){
+  Object.values(screens).forEach(s=>s.classList.remove('active'));
+  screens[name].classList.add('active');
+}
+
+document.querySelectorAll('#mainNav button').forEach(b=> b.addEventListener('click', ()=> showPage(b.dataset.nav)));
+document.getElementById('homeCta').addEventListener('click', ()=>{ showPage('play'); showScreen('select'); });
+document.getElementById('fontDec').addEventListener('click', ()=>{ fontScale = Math.max(0.85, +(fontScale-0.1).toFixed(2)); applyFontScale(); });
+document.getElementById('fontInc').addEventListener('click', ()=>{ fontScale = Math.min(1.3, +(fontScale+0.1).toFixed(2)); applyFontScale(); });
+document.getElementById('langToggle').addEventListener('click', toggleLang);
+
+function shuffledIndices(len){
+  const arr = Array.from({length:len}, (_,i)=>i);
+  for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
+  return arr;
+}
+
+/* ---------- History storage ---------- */
+function loadHistory(){ try{ const raw = localStorage.getItem(HISTORY_KEY); return raw?JSON.parse(raw):[]; }catch(e){ return []; } }
+function saveHistoryEntry(entry){
+  try{ const list=loadHistory(); list.unshift(entry); while(list.length>60) list.pop(); localStorage.setItem(HISTORY_KEY, JSON.stringify(list)); }catch(e){}
+}
+function clearHistory(){ try{ localStorage.removeItem(HISTORY_KEY); }catch(e){} renderReports(); refreshBadges(); renderHomeStats(); }
+function refreshBadges(){
+  const list = loadHistory();
+  ['math','science','english','history'].forEach(sub=>{
+    const attempts = list.filter(i=>i.subject===sub);
+    const badge = document.getElementById('badge-'+sub);
+    if(attempts.length===0){ badge.innerHTML = '10 fresh<br>questions'; }
+    else{
+      const best = attempts.reduce((m,a)=> a.score>m?a.score:m, 0);
+      const bestOf = attempts.find(a=>a.score===best).total;
+      badge.innerHTML = 'Best '+best+'/'+bestOf+'<br>'+attempts.length+' play'+(attempts.length>1?'s':'');
+    }
+  });
+}
+function renderHomeStats(){
+  const list = loadHistory();
+  const wrap = document.getElementById('homeStats');
+  wrap.innerHTML = '';
+  if(list.length===0) return;
+  const totalPlays = list.length;
+  const avg = Math.round(list.reduce((s,i)=> s+(i.score/i.total), 0)/list.length*100);
+  const subjectsPlayed = new Set(list.map(i=>i.subject)).size;
+  [[totalPlays,'Total plays'], [avg+'%','Avg. score'], [subjectsPlayed+'/4','Subjects tried']].forEach(([num,lbl])=>{
+    const chip = document.createElement('div'); chip.className='stat-chip';
+    chip.innerHTML = '<div class="num">'+num+'</div><div class="lbl">'+lbl+'</div>';
+    wrap.appendChild(chip);
+  });
+}
+
+/* ---------- Learn page ---------- */
+function renderLearn(activeSub){
+  const sub = activeSub || document.querySelector('.pill-btn.active').dataset.subj;
+  document.querySelectorAll('.pill-btn').forEach(b=> b.classList.toggle('active', b.dataset.subj===sub));
+  const wrap = document.getElementById('learnNotesWrap');
+  wrap.innerHTML = '';
+  LEARN_NOTES[sub].forEach(note=>{
+    const card = document.createElement('div'); card.className='topic-note';
+    const btn = document.createElement('button');
+    btn.className='practice-btn'; btn.style.background = 'var(--'+sub+')';
+    btn.textContent = t('practice_btn');
+    btn.addEventListener('click', ()=>{ showPage('play'); startQuiz(sub, note.topics); });
+    card.innerHTML = '<h3>'+note.topic+'</h3><p>'+note.text+'</p>';
+    card.appendChild(btn);
+    wrap.appendChild(card);
+  });
+}
+document.querySelectorAll('.pill-btn').forEach(b=> b.addEventListener('click', ()=> renderLearn(b.dataset.subj)));
+
+/* ---------- Reports page ---------- */
+function renderReports(){
+  const list = loadHistory();
+  const overall = document.getElementById('overallStats');
+  const cardsWrap = document.getElementById('reportCards');
+  const listWrap = document.getElementById('historyList');
+  overall.innerHTML=''; cardsWrap.innerHTML=''; listWrap.innerHTML='';
+
+  if(list.length===0){
+    listWrap.innerHTML = '<div class="history-empty">No attempts yet — play a quiz to start building your reports!</div>';
+    return;
+  }
+
+  const totalPlays = list.length;
+  const avg = Math.round(list.reduce((s,i)=> s+(i.score/i.total), 0)/list.length*100);
+  [[totalPlays,'Total plays'], [avg+'%','Overall average']].forEach(([num,lbl])=>{
+    const chip=document.createElement('div'); chip.className='stat-chip';
+    chip.innerHTML='<div class="num">'+num+'</div><div class="lbl">'+lbl+'</div>';
+    overall.appendChild(chip);
+  });
+
+  ['math','science','english','history'].forEach(sub=>{
+    const attempts = list.filter(i=>i.subject===sub);
+    if(attempts.length===0) return;
+    const best = attempts.reduce((m,a)=> a.score>m?a.score:m, 0);
+    const bestEntry = attempts.find(a=>a.score===best);
+    const avgPct = Math.round(attempts.reduce((s,a)=> s+(a.score/a.total),0)/attempts.length*100);
+    const oldest = attempts[attempts.length-1];
+    const newest = attempts[0];
+    const card = document.createElement('div'); card.className='report-card';
+    let trendHtml='';
+    if(attempts.length>1){
+      const improved = (newest.score/newest.total) - (oldest.score/oldest.total);
+      const arrow = improved>0?'▲ improving':(improved<0?'▼ dipped':'— steady');
+      trendHtml = '<div class="rc-trend">First: '+oldest.score+'/'+oldest.total+' → Latest: '+newest.score+'/'+newest.total+' ('+arrow+')</div>';
+    }
+    card.innerHTML =
+      '<div class="rc-top"><span class="rc-dot" style="background:var(--'+sub+')"></span><h4>'+sub+'</h4></div>'+
+      '<div class="rc-stats"><span><b>'+attempts.length+'</b> plays</span><span>Best <b>'+best+'/'+bestEntry.total+'</b></span><span>Avg <b>'+avgPct+'%</b></span></div>'+
+      trendHtml;
+    cardsWrap.appendChild(card);
+  });
+
+  list.forEach(item=>{
+    const row = document.createElement('div'); row.className='history-item';
+    const d = new Date(item.date);
+    const dateStr = d.toLocaleDateString(undefined,{day:'numeric',month:'short'}) + ' · ' + d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});
+    row.innerHTML =
+      '<span class="history-dot '+item.subject+'"></span>'+
+      '<span class="history-main"><span class="h-subject">'+item.subject+'</span><br><span class="h-date">'+dateStr+'</span></span>'+
+      '<span class="history-score">'+item.score+'/'+item.total+'</span>';
+    listWrap.appendChild(row);
+  });
+}
+document.getElementById('clearReportsBtn').addEventListener('click', ()=>{ if(confirm('Clear all saved reports on this device?')) clearHistory(); });
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  const list = loadHistory();
+  if(list.length===0){ alert('No report data yet.'); return; }
+  let out = 'Learning Quest — Report Export\nGenerated: ' + new Date().toLocaleString() + '\n\n';
+  ['math','science','english','history'].forEach(sub=>{
+    const attempts = list.filter(i=>i.subject===sub);
+    if(attempts.length===0) return;
+    out += sub.toUpperCase() + ' — ' + attempts.length + ' attempt(s)\n';
+    attempts.slice().reverse().forEach(a=>{
+      out += '  ' + new Date(a.date).toLocaleString() + '  →  ' + a.score + '/' + a.total + '\n';
+    });
+    out += '\n';
+  });
+  try{
+    const blob = new Blob([out], {type:'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'learning-quest-report.txt';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }catch(e){ alert('Could not generate the file on this device.'); }
+});
+
+/* ---------- Print worksheet ---------- */
+function printWorksheet(subject){
+  const qs = QUESTIONS[subject];
+  let html = '<h1 style="font-family:Georgia,serif;">Learning Quest — ' + subject.charAt(0).toUpperCase()+subject.slice(1) + ' Worksheet</h1>';
+  html += '<p>Class 8 practice sheet · ' + qs.length + ' questions</p><ol style="line-height:1.7;">';
+  qs.forEach(q=>{
+    html += '<li><b>['+q.topic+']</b> ' + q.q + '<br>Options: ' + q.opts.join(' | ') + '<br><i>Answer: ' + q.opts[q.correct] + ' — ' + q.exp + '</i></li>';
+  });
+  html += '</ol>';
+  document.getElementById('printWorksheet').innerHTML = html;
+  window.print();
+}
+
+/* ---------- Quiz logic ---------- */
+document.querySelectorAll('.subject-card').forEach(card=>{ card.addEventListener('click', ()=> startQuiz(card.dataset.subject)); });
+document.getElementById('backBtn').addEventListener('click', ()=> showScreen('select'));
+document.getElementById('retryBtn').addEventListener('click', ()=> startQuiz(state.subject));
+document.getElementById('chooseBtn').addEventListener('click', ()=> showScreen('select'));
+document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+document.getElementById('readAloudBtn').addEventListener('click', ()=>{
+  try{
+    const qData = QUESTIONS[state.subject][state.order[state.index]];
+    const utter = new SpeechSynthesisUtterance(qData.q + '. Options: ' + qData.opts.join(', '));
+    utter.lang = currentLang === 'hi' ? 'hi-IN' : 'en-IN';
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utter);
+  }catch(e){}
+});
+
+function setTheme(subject){
+  document.getElementById('appRoot').className = 'app theme-' + subject;
+  const cs = getComputedStyle(document.documentElement);
+  const map = {math:'--math', science:'--science', english:'--english', history:'--history'};
+  document.documentElement.style.setProperty('--accent', cs.getPropertyValue(map[subject]));
+}
+
+function startQuiz(subject, topicFilter){
+  let pool = QUESTIONS[subject];
+  if(topicFilter && topicFilter.length){ const filtered = pool.filter(q=>topicFilter.includes(q.topic)); if(filtered.length>0) pool = filtered; }
+  const picks = shuffledIndices(pool.length).slice(0, Math.min(QUESTIONS_PER_ROUND, pool.length));
+  state = { subject, pool, order: picks, index:0, score:0, answered:false, results:[] };
+  setTheme(subject);
+  buildDots();
+  setMascot('neutral');
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function buildDots(){
+  const wrap = document.getElementById('progressDots'); wrap.innerHTML='';
+  state.order.forEach((_, i)=>{ const d=document.createElement('span'); d.className='dot'; d.id='dot-'+i; wrap.appendChild(d); });
+}
+function updateDots(){
+  state.order.forEach((_, i)=>{
+    const d = document.getElementById('dot-'+i);
+    d.classList.remove('current','done-correct','done-wrong');
+    if(i<state.index){ d.classList.add(state.results[i]?'done-correct':'done-wrong'); }
+    else if(i===state.index){ d.classList.add('current'); }
+  });
+}
+
+function renderQuestion(){
+  state.answered = false;
+  updateDots();
+  const qData = state.pool[state.order[state.index]];
+  document.getElementById('topicTag').textContent = qData.topic.toUpperCase() + ' · Q' + (state.index+1) + '/' + state.order.length;
+  document.getElementById('questionText').textContent = qData.q;
+  document.getElementById('scorePill').textContent = t('score_prefix') + state.score;
+
+  const wrap = document.getElementById('optionsWrap'); wrap.innerHTML='';
+  qData.opts.forEach((opt, i)=>{
+    const btn = document.createElement('button'); btn.className='option-btn'; btn.textContent = opt;
+    btn.addEventListener('click', ()=> selectAnswer(i, qData));
+    wrap.appendChild(btn);
+  });
+
+  document.getElementById('feedback').classList.remove('show','good','bad');
+  document.getElementById('nextBtn').classList.remove('show');
+  setMascot('neutral');
+}
+
+function selectAnswer(i, qData){
+  if(state.answered) return;
+  state.answered = true;
+  const buttons = document.querySelectorAll('.option-btn');
+  const correct = i === qData.correct;
+  state.results[state.index] = correct;
+  if(correct) state.score++;
+
+  buttons.forEach((b, idx)=>{
+    b.disabled = true;
+    if(idx===qData.correct) b.classList.add('correct');
+    else if(idx===i) b.classList.add('wrong');
+    else b.classList.add('dim');
+  });
+
+  const fb = document.getElementById('feedback');
+  fb.classList.add('show', correct?'good':'bad');
+  document.getElementById('feedbackTitle').textContent = correct ? PRAISE[Math.floor(Math.random()*PRAISE.length)] : CONSOLE_MSGS[Math.floor(Math.random()*CONSOLE_MSGS.length)];
+  document.getElementById('feedbackText').textContent = qData.exp;
+  document.getElementById('scorePill').textContent = t('score_prefix') + state.score;
+  setMascot(correct?'happy':'sad');
+  updateDots();
+
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.textContent = (state.index === state.order.length-1) ? t('see_results_btn') : t('next_btn');
+  nextBtn.classList.add('show');
+}
+
+function nextQuestion(){
+  if(state.index < state.order.length-1){ state.index++; renderQuestion(); }
+  else{ showResults(); }
+}
+
+function showResults(){
+  updateDots();
+  const total = state.order.length;
+  document.getElementById('resultSubject').textContent = state.subject.charAt(0).toUpperCase()+state.subject.slice(1)+' complete!';
+  document.getElementById('resultScore').textContent = state.score+' / '+total;
+
+  let msg, mouth; const pct = state.score/total;
+  if(pct>=0.8){ msg="Outstanding! You've really got this topic down."; mouth="M48 64 Q70 92 92 64"; spawnConfetti(); }
+  else if(pct>=0.5){ msg="Good effort! A bit more practice and you'll master it."; mouth="M50 68 Q70 82 90 68"; }
+  else{ msg="Good try! Play again to practice the tricky ones."; mouth="M52 76 Q70 62 88 76"; }
+  document.getElementById('resultMsg').textContent = msg;
+  document.getElementById('resultMouth').setAttribute('d', mouth);
+
+  saveHistoryEntry({subject:state.subject, score:state.score, total:total, date:Date.now()});
+  refreshBadges();
+  showScreen('results');
+}
+
+function spawnConfetti(){
+  const panel = document.getElementById('resultsPanel');
+  const colors = ['var(--math)','var(--science)','var(--english)','var(--gold)'];
+  for(let i=0;i<18;i++){
+    const piece = document.createElement('div'); piece.className='confetti-piece';
+    piece.style.left = (5+Math.random()*90)+'%';
+    piece.style.background = colors[i%colors.length];
+    piece.style.animationDelay = (Math.random()*0.3)+'s';
+    piece.style.transform = 'rotate('+Math.floor(Math.random()*360)+'deg)';
+    panel.appendChild(piece);
+    setTimeout(()=> piece.remove(), 2200);
+  }
+}
+
+function setMascot(mood){
+  const mouth=document.getElementById('mouth'), eyeL=document.getElementById('eyeL'), eyeR=document.getElementById('eyeR');
+  const mascot=document.getElementById('mascot'), armL=document.getElementById('armL'), armR=document.getElementById('armR'), headGroup=document.getElementById('headGroup');
+  mascot.classList.remove('bounce','shake'); void mascot.offsetWidth;
+  if(mood==='happy'){
+    mouth.setAttribute('d','M48 64 Q70 92 92 64'); eyeL.setAttribute('r','6'); eyeR.setAttribute('r','6');
+    armL.setAttribute('transform','rotate(-95 48 108)'); armR.setAttribute('transform','rotate(95 92 108)');
+    headGroup.setAttribute('transform','rotate(-4 70 54)'); mascot.classList.add('bounce');
+  } else if(mood==='sad'){
+    mouth.setAttribute('d','M50 78 Q70 64 90 78'); eyeL.setAttribute('r','5'); eyeR.setAttribute('r','5');
+    armL.setAttribute('transform','rotate(18 48 108)'); armR.setAttribute('transform','rotate(-18 92 108)');
+    headGroup.setAttribute('transform','rotate(8 70 54)'); mascot.classList.add('shake');
+  } else {
+    mouth.setAttribute('d','M50 68 Q70 78 90 68'); eyeL.setAttribute('r','6'); eyeR.setAttribute('r','6');
+    armL.setAttribute('transform','rotate(0 48 108)'); armR.setAttribute('transform','rotate(0 92 108)');
+    headGroup.setAttribute('transform','rotate(0 70 54)');
+  }
+}
+
+/* ---------- Init ---------- */
+(function init(){
+  try{
+    const savedLang = localStorage.getItem(LANG_KEY);
+    if(savedLang) currentLang = savedLang;
+    const savedFont = parseFloat(localStorage.getItem(FONT_KEY));
+    if(!isNaN(savedFont)) fontScale = savedFont;
+  }catch(e){}
+  applyFontScale();
+  applyLang();
+  refreshBadges();
+  renderHomeStats();
+  renderLearn('math');
+})();
+</script>
+
+<style>
+@keyframes bounceMood{0%{transform:translateY(0) scale(1);}30%{transform:translateY(-12px) scale(1.05);}55%{transform:translateY(0) scale(1);}75%{transform:translateY(-5px) scale(1.02);}100%{transform:translateY(0) scale(1);}}
+@keyframes shakeMood{0%{transform:translateX(0) rotate(0);}20%{transform:translateX(-6px) rotate(-3deg);}40%{transform:translateX(5px) rotate(2.5deg);}60%{transform:translateX(-4px) rotate(-1.5deg);}80%{transform:translateX(3px) rotate(1deg);}100%{transform:translateX(0) rotate(0);}}
+#mascot.bounce{animation:bounceMood .6s ease;}
+#mascot.shake{animation:shakeMood .5s ease;}
+</style>
+</body>
+</html>
